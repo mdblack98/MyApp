@@ -15,6 +15,7 @@
 	<Application.Resources>
 		<FontFamily x:Key="LEDFont">"resm:MyApp.Resources.Fonts.digital_counter_7.ttf#LEDFont"</FontFamily>
 		<FontFamily x:Key="NunitoFont">avares://GoogleFonts/Assets/Fonts#Nunito</FontFamily>
+		<FontFamily x:Key="Courier">resm:MyApp.Resources.Fonts.courierstd.oft#Courier"</FontFamily>
 	</Application.Resources>
 </Application>
 

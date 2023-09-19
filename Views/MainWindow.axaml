@@ -41,9 +41,15 @@
 		</TabItem>
 		<TabItem Name="Tab2">
 			<TabItem.Header>
-				<TextBlock VerticalAlignment="Center">JSON</TextBlock>
+				<TextBlock VerticalAlignment="Center">JSON
+			</TextBlock>
 			</TabItem.Header>
 			<TextBox Name="MessageTextBox" Margin="0,5,0,0"/>
+		</TabItem>
+		<TabItem Name="Spectrum">
+			<TabItem.Header>
+				<TextBlock VerticalAlignment="Center">Spectrum</TextBlock>
+			</TabItem.Header>
 		</TabItem>
 	</TabControl>
 </Window>
