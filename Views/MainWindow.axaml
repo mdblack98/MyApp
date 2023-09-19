@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:MyApp"
         x:Class="MyApp.MainWindow"
-        Title="Hamlib Rig GUI 20230918" Width="500" Height="850">
+        Title="Hamlib Rig GUI 20230919" Width="500" Height="850">
 	<TabControl>
 		<TabItem Name="Tab1">
 			<TabItem.Header>
