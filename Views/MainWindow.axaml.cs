@@ -137,17 +137,24 @@ namespace MyApp
                                 frequencyB = json.vfos[1].freq;
                                 VFOBFreqBox!.Text = json.vfos[1].freq.ToString();
                             }
-                            if (json.vfos[0].mode != modeA)
+                            if (json.vfos[0] != null)
                             {
-                                if (json.vfos[0] != null) modeA = json.vfos[0].mode;
-                                VFOAModeBox!.SelectedItem = json.vfos[0].mode;
+                                if (json.vfos[0].mode != modeA)
+                                {
+                                    if (json.vfos[0].mode != null && json.vfos.Count >= 1)
+                                    {
+                                        
+                                    modeA = json.vfos[0].mode ?? "";
+                                    VFOAModeBox!.SelectedItem = modeA;
+                                    }
+                                }
                             }
                             if (json.vfos[1].mode != modeB)
                             {
                                 if (json.vfos != null && json.vfos.Count >= 2 && json.vfos[1] != null && json.vfos[1].mode != null)
                                 {
-                                    if (json.vfos[1].mode != null) modeB = json.vfos[1].mode;
-                                    VFOBModeBox!.SelectedItem = json.vfos[1].mode;
+                                    modeB = json.vfos[1].mode ?? "";
+                                    VFOBModeBox!.SelectedItem = modeB;
                                 }
                                 else
                                 {
