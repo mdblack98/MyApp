@@ -161,6 +161,7 @@ namespace MyApp
                                     modeB = "None";
                                 }
                             }
+                            /* need to part mode arrqay now
                             if ((json.rig != null && json.rig.modelist != modeList) || modeAChanged || modeBChanged)
                             {
                                 modeAChanged = false;
@@ -188,6 +189,7 @@ namespace MyApp
                                     }
                                 }
                             }
+                            */
                             if (json.vfos != null && json.vfos[0].rx == true && json.vfos[0].tx == true)
                             {
                                 VFOAFreqBox!.Foreground = new SolidColorBrush(Colors.White);

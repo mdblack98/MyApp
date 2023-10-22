@@ -23,17 +23,23 @@ namespace MyApp
         }
     }
 
+    public class Id
+    {
+        public string? model { get; set; }
+        public string? endpoint { get; set; }
+        public string? process { get; set; }
+    }
     public class Rig
     {
-        public string? id { get; set; }
         public string? status { get; set; }
         public string? errorMsg { get; set; }
         public string? name { get; set; }
         public bool split { get; set; }
         public string? splitVfo { get; set; }
         public bool SatMode { get; set; }
-        public required string modelist { get; set; }
+        public Id? id { get; set; }
     }
+
 
     public class VFO
     {

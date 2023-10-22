@@ -2,23 +2,23 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:MyApp"
         x:Class="MyApp.MainWindow"
-        Title="Hamlib Rig GUI 20230919" Width="500" Height="850">
+        Title="Hamlib Rig GUI 20231022" Width="500" Height="850">
 	<TabControl>
 		<TabItem Name="Tab1">
 			<TabItem.Header>
 				<TextBlock VerticalAlignment="Center">Rig</TextBlock>
 			</TabItem.Header>
 			<StackPanel Margin="10">
-
+				<!--Some text for comments-->
 				<StackPanel Orientation="Horizontal" Margin="0,0,0,5">
 					<TextBlock Text="IP Address:" VerticalAlignment="Center" Width="80"/>
-					<TextBox Name="IpAddressBox" Width="140" Height="30" Text="224.0.0.1"/>
-				</StackPanel>
-
-				<StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-					<TextBlock Text="Port:" VerticalAlignment="Center" Width="80"/>
-					<TextBox Name="PortBox" Width="140" Height="30" Text="4532"/>
+					<TextBox Name="IpAddressBox" Width="100" Height="30" Margin="0,0,10,0" Text="224.0.0.1"/>
+					<TextBlock Text="Port:" VerticalAlignment="Center" Width="35" Margin="10,0,0,0"/>
+					<TextBox Name="PortBox" Width="70" Height="30" Margin="0,0,10,0" Text="4532"/>
 					<Button Name="JoinButton" Content="Join" Width="60" Height="30" Margin="10,10,0,10" Click="OnJoinButtonClick"/>
+				</StackPanel>
+				<TextBlock Text="Id" Name="Id" VerticalAlignment="Center" Width="80" Margin="0,-5,0,10"/>
+				<StackPanel Orientation="Horizontal" Margin="0,0,0,0">
 				</StackPanel>
 
 				<StackPanel Orientation="Horizontal" Margin="0,0,0,5">
