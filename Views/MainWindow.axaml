@@ -24,6 +24,9 @@
 				<StackPanel Orientation="Horizontal" Margin="0,0,0,0">
 				</StackPanel>
 
+				<StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+				</StackPanel>
+				
 				<StackPanel Orientation="Horizontal" Margin="0,0,0,5">
 					<TextBlock Text="VFOA Freq:" VerticalAlignment="Center" Width="80"/>
 					<TextBox Name="VFOAFreqBox" Width="140" Height="30" IsReadOnly="False" ToolTip.Tip="Green=Rx, Yellow=Tx, Red=Active TX, Grey=Not in use"/>
