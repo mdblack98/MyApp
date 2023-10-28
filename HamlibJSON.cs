@@ -38,6 +38,7 @@ namespace MyApp
         public string? splitVfo { get; set; }
         public bool SatMode { get; set; }
         public Id? id { get; set; }
+        public string[]? modes { get; set; }
     }
 
 

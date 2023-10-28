@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
@@ -11,6 +12,8 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using Avalonia.Rendering;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace MyApp
 {
@@ -83,6 +86,7 @@ namespace MyApp
                 try
                 {
                     var ipAddressBox = this.FindControl<TextBox>("IpAddressBox");
+                    var idBox = this.FindControl<ComboBox>("IdBox");
                     var portBox = this.FindControl<TextBox>("PortBox");
                     var messageTextBox = this.FindControl<TextBox>("MessageTextBox");
                     var VFOAFreqBox = this.FindControl<TextBox>("VFOAFreqBox");
@@ -97,7 +101,25 @@ namespace MyApp
                     if (portBox != null && portBox.Text != null) port = int.Parse(portBox.Text);
 
                     _udpClient = new UdpClient(port);
-                    _udpClient.JoinMulticastGroup(multicastAddress);
+                    _udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                    //_udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, port));
+                    NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
+                    foreach (NetworkInterface adapter in nics)
+                    {
+                        if (adapter.SupportsMulticast && adapter.OperationalStatus == OperationalStatus.Up)
+                        {
+                            IPInterfaceProperties ip_properties = adapter.GetIPProperties();
+                            foreach (IPAddressInformation uniCast in ip_properties.UnicastAddresses)
+                            {
+                                if (uniCast.Address.AddressFamily == AddressFamily.InterNetwork)
+                                {
+                                    _udpClient.JoinMulticastGroup(multicastAddress, uniCast.Address);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    //_udpClient.JoinMulticastGroup(multicastAddress);
 
                     _isConnected = true;
                     if (_joinButton != null)
@@ -112,7 +134,6 @@ namespace MyApp
                     string modeB = "None";
                     bool modeAChanged = false;
                     bool modeBChanged = false;
-                    string modeList = "VFOA";
 
                     while (_isConnected)
                     {
@@ -120,13 +141,22 @@ namespace MyApp
                         string message = Encoding.UTF8.GetString(result.Buffer);
                         if (message != null)
                         {
-                            messageTextBox!.Text = PrettifyJson(message);
                             RootObject? json = DataParser.ParseMulticastDataPacket(message);
                             if (json == null || json.vfos == null)
                             {
                                 continue;
                             }
-
+                            var id = json.rig?.id?.model + " " + json.rig?.id?.endpoint + " " + json.rig?.id?.process;
+                            if (!idBox!.Items.Contains(id)) idBox.Items.Add(id);
+                            if (idBox.Items.Count == 1) idBox.SelectedItem = idBox.Items[0];
+                            if (idBox.SelectedItem != null && idBox.SelectedItem.ToString() != id)
+                            {
+                                if (!(idBox.SelectedItem.ToString() == id))  // if not our selected rig we ignore
+                                {
+                                    continue;
+                                }
+                            }
+                            messageTextBox!.Text = PrettifyJson(message);
                             if (json.vfos[0].freq != frequencyA)
                             {
                                 frequencyA = json.vfos[0].freq;
@@ -143,9 +173,9 @@ namespace MyApp
                                 {
                                     if (json.vfos[0].mode != null && json.vfos.Count >= 1)
                                     {
-                                        
-                                    modeA = json.vfos[0].mode ?? "";
-                                    VFOAModeBox!.SelectedItem = modeA;
+
+                                        modeA = json.vfos[0].mode ?? "";
+                                        VFOAModeBox!.SelectedItem = modeA;
                                     }
                                 }
                             }
@@ -160,6 +190,30 @@ namespace MyApp
                                 {
                                     modeB = "None";
                                 }
+                            }
+                            if (VFOAModeBox.Items.Count > 0 && VFOAModeBox.SelectedItem != null && VFOAModeBox.SelectedItem.ToString() != modeA)
+                            {
+                                modeA = VFOAModeBox.SelectedItem.ToString();
+                                // set new mode
+                                modeAChanged = true;
+                            }
+                            if (VFOAModeBox.Items.Count > 0 && VFOBModeBox.SelectedItem != null && VFOBModeBox.SelectedItem.ToString() != modeB)
+                            {
+                                modeB = VFOBModeBox.SelectedItem.ToString();
+                                // set new mode
+                                modeBChanged = true;
+                            }
+                            if (json.rig != null && (modeAChanged || modeBChanged || VFOAModeBox.Items.Count == 0))
+                            {
+                                modeAChanged = false;
+                                modeBChanged = false;
+                                foreach(string token in json.rig.modes)
+                                {
+                                    VFOAModeBox.Items.Add(token);
+                                    VFOBModeBox.Items.Add(token);
+                                }
+                                VFOAModeBox.SetCurrentValue(ComboBox.SelectedItemProperty, modeA);
+                                VFOBModeBox.SetCurrentValue(ComboBox.SelectedItemProperty, modeB);
                             }
                             /* need to part mode arrqay now
                             if ((json.rig != null && json.rig.modelist != modeList) || modeAChanged || modeBChanged)
@@ -190,30 +244,52 @@ namespace MyApp
                                 }
                             }
                             */
-                            if (json.vfos != null && json.vfos[0].rx == true && json.vfos[0].tx == true)
+                            var ColorRx = new SolidColorBrush(Colors.Green);
+                            var ColorTx = new SolidColorBrush(Colors.Yellow);
+                            var ColorPTT = new SolidColorBrush(Colors.Red);
+                            var ColorNA = new SolidColorBrush(Colors.Gray);
+
+                            if (json.vfos![0].ptt == true)
                             {
-                                VFOAFreqBox!.Foreground = new SolidColorBrush(Colors.White);
-                                VFOBFreqBox!.Foreground = new SolidColorBrush(Colors.Gray);
+                                VFOAFreqBox!.Foreground = ColorPTT;
+                            }
+                            else if (json.vfos![1].ptt == true)
+                            {
+                                VFOBFreqBox!.Foreground = ColorPTT;
+                            }
+                            else if (json.vfos != null && json.vfos[0].rx == true && json.vfos[0].tx == true)
+                            {
+                                VFOAFreqBox!.Foreground = ColorRx;
+                                VFOBFreqBox!.Foreground = ColorNA;
                             }
                             else if (json.vfos != null && json.vfos[1].rx == true && json.vfos[1].tx == true)
                             {
-                                VFOAFreqBox!.Foreground = new SolidColorBrush(Colors.Gray);
-                                VFOBFreqBox!.Foreground = new SolidColorBrush(Colors.White);
+                                VFOAFreqBox!.Foreground = ColorNA;
+                                VFOBFreqBox!.Foreground = ColorRx;
                             }
                             else if (json.vfos != null && json.vfos[0].rx == true && json.vfos[1].tx == true)
                             {
-                                VFOAFreqBox!.Foreground = new SolidColorBrush(Colors.Green);
-                                VFOBFreqBox!.Foreground = new SolidColorBrush(Colors.Red);
+                                VFOAFreqBox!.Foreground = ColorRx;
+                                VFOBFreqBox!.Foreground = ColorTx;
                             }
                             else if (json.vfos != null && json.vfos[0].tx == true && json.vfos[1].rx == true)
                             {
-                                VFOAFreqBox!.Foreground = new SolidColorBrush(Colors.Red);
-                                VFOBFreqBox!.Foreground = new SolidColorBrush(Colors.Green);
+                                VFOAFreqBox!.Foreground = ColorTx;
+                                VFOBFreqBox!.Foreground = ColorRx;
                             }
+                            else if (json.vfos![0].ptt == true)
+                            {
+                                VFOAFreqBox!.Foreground = ColorTx;
+                            }
+                            else if (json.vfos![1].ptt == true)
+                            {
+                                VFOBFreqBox!.Foreground = ColorTx;
+                            }
+                        
                             else
                             {
-                                VFOAFreqBox!.Foreground = new SolidColorBrush(Colors.Gray);
-                                VFOBFreqBox!.Foreground = new SolidColorBrush(Colors.Gray);
+                                VFOAFreqBox!.Foreground = ColorNA;
+                                VFOBFreqBox!.Foreground = ColorNA;
                             }
                         }
                     }

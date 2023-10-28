@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:MyApp"
         x:Class="MyApp.MainWindow"
-        Title="Hamlib Rig GUI 20231022" Width="500" Height="850">
+        Title="Hamlib GUI 20231027" Width="500" Height="350">
 	<TabControl>
 		<TabItem Name="Tab1">
 			<TabItem.Header>
@@ -16,14 +16,17 @@
 					<TextBlock Text="Port:" VerticalAlignment="Center" Width="35" Margin="10,0,0,0"/>
 					<TextBox Name="PortBox" Width="70" Height="30" Margin="0,0,10,0" Text="4532"/>
 					<Button Name="JoinButton" Content="Join" Width="60" Height="30" Margin="10,10,0,10" Click="OnJoinButtonClick"/>
+					<CheckBox Name="JoinAtStartup" Height="30" Margin="10,10,0,10">
+					<ToolTip.Tip>"Join automatically at startup"</ToolTip.Tip>
+					</CheckBox>
 				</StackPanel>
-				<TextBlock Text="Id" Name="Id" VerticalAlignment="Center" Width="80" Margin="0,-5,0,10"/>
+				<ComboBox Name="IdBox" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0,-5,0,10" ToolTip.Tip="Select the rig instance to control" />
 				<StackPanel Orientation="Horizontal" Margin="0,0,0,0">
 				</StackPanel>
 
 				<StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-					<TextBlock Text="VFOA Freq:" VerticalAlignment="Center" Width="80"  ToolTip.Tip="Green RX, Red TX" />
-					<TextBox Name="VFOAFreqBox" Width="140" Height="30" IsReadOnly="False" ToolTip.Tip="Green=RX, Red=TX, Grey=N/A"/>
+					<TextBlock Text="VFOA Freq:" VerticalAlignment="Center" Width="80"/>
+					<TextBox Name="VFOAFreqBox" Width="140" Height="30" IsReadOnly="False" ToolTip.Tip="Green=Rx, Yellow=Tx, Red=Active TX, Grey=Not in use"/>
 					<TextBlock Text="Mode:" VerticalAlignment="Center" Width="45" Margin="10,0,0,0"/>
 					<ComboBox Name="VFOAModeBox" Width="100" Height="30">
 					</ComboBox>
@@ -31,7 +34,7 @@
 
 				<StackPanel Orientation="Horizontal" Margin="0,0,0,5">
 					<TextBlock Text="VFOB Freq:" VerticalAlignment="Center" Width="80" />
-					<TextBox Name="VFOBFreqBox" Width="140" Height="30" IsReadOnly="False" ToolTip.Tip="Green=RX, Red=TX"/>
+					<TextBox Name="VFOBFreqBox" Width="140" Height="30" IsReadOnly="False" ToolTip.Tip="Green=Rx, Yellow=Tx, Red=Active TX, Grey=Not in use"/>
 					<TextBlock Text="Mode:" VerticalAlignment="Center" Width="45" Margin="10,0,0,0"/>
 					<ComboBox Name="VFOBModeBox" Width="100" Height="30">
 					</ComboBox>
@@ -50,6 +53,14 @@
 			<TabItem.Header>
 				<TextBlock VerticalAlignment="Center">Spectrum</TextBlock>
 			</TabItem.Header>
+		</TabItem>
+		<TabItem Name="Debug">
+			<TabItem.Header>
+				<TextBlock VerticalAlignment="Center">Debug</TextBlock>
+			</TabItem.Header>
+			<StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+					<TextBlock Text="Debug Level:" VerticalAlignment="Top" />
+		    </StackPanel>
 		</TabItem>
 	</TabControl>
 </Window>
