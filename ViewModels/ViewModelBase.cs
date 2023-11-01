@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 
-namespace MyApp.ViewModels;
+namespace HamlibGUI.ViewModels;
 
 public class ViewModelBase : ReactiveObject
 {

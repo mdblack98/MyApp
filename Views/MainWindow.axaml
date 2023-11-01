@@ -1,7 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:MyApp"
-        x:Class="MyApp.MainWindow"
+        xmlns:local="clr-namespace:HamlibGUI"
+        x:Class="HamlibGUI.MainWindow"
         Title="Hamlib GUI 20231027" Width="500" Height="350">
 	<TabControl>
 		<TabItem Name="Tab1">
@@ -62,7 +62,7 @@
 				<TextBlock VerticalAlignment="Center">Debug</TextBlock>
 			</TabItem.Header>
 			<StackPanel Orientation="Horizontal" Margin="0,0,0,0">
-					<TextBlock Text="Debug Level:" VerticalAlignment="Top" />
+					<TextBlock Name="DebugBox" Text="Debug Level:" VerticalAlignment="Top" />
 		    </StackPanel>
 		</TabItem>
 	</TabControl>

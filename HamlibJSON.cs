@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace MyApp
+namespace HamlibGUI
 {
 #pragma warning disable IDE1006 // Naming Styles
     public class DataParser

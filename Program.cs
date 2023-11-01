@@ -2,7 +2,7 @@
 using Avalonia.ReactiveUI;
 using System;
 
-namespace MyApp;
+namespace HamlibGUI;
 
 class Program
 {

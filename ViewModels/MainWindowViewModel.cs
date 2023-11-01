@@ -1,4 +1,4 @@
-﻿namespace MyApp.ViewModels;
+﻿namespace HamlibGUI.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {

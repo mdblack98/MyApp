@@ -1,9 +1,9 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using MyApp.ViewModels;
+using HamlibGUI.ViewModels;
 
-namespace MyApp;
+namespace HamlibGUI;
 
 public class ViewLocator : IDataTemplate
 {

@@ -1,7 +1,7 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="MyApp.App"
-             xmlns:local="using:MyApp"
+             x:Class="HamlibGUI.App"
+             xmlns:local="using:HamlibGUI"
              RequestedThemeVariant="Dark">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
@@ -13,9 +13,9 @@
         <FluentTheme />
     </Application.Styles>
 	<Application.Resources>
-		<FontFamily x:Key="LEDFont">"resm:MyApp.Resources.Fonts.digital_counter_7.ttf#LEDFont"</FontFamily>
+		<FontFamily x:Key="LEDFont">"resm:HamlibGUI.Resources.Fonts.digital_counter_7.ttf#LEDFont"</FontFamily>
 		<FontFamily x:Key="NunitoFont">avares://GoogleFonts/Assets/Fonts#Nunito</FontFamily>
-		<FontFamily x:Key="Courier">resm:MyApp.Resources.Fonts.courierstd.oft#Courier"</FontFamily>
+		<FontFamily x:Key="Courier">resm:HamlibGUI.Resources.Fonts.courierstd.oft#Courier"</FontFamily>
 	</Application.Resources>
 </Application>
 

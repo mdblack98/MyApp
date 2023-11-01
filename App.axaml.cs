@@ -1,9 +1,9 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using MyApp.ViewModels;
+using HamlibGUI.ViewModels;
 
-namespace MyApp;
+namespace HamlibGUI;
 
 public partial class App : Application
 {

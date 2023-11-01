@@ -13,9 +13,9 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Rendering;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+//using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace MyApp
+namespace HamlibGUI
 {
     public partial class MainWindow : Window
     {
@@ -93,6 +93,7 @@ namespace MyApp
                     var VFOBFreqBox = this.FindControl<TextBox>("VFOBFreqBox");
                     var VFOAModeBox = this.FindControl<ComboBox>("VFOAModeBox");
                     var VFOBModeBox = this.FindControl<ComboBox>("VFOBModeBox");
+                    var DebugBox = this.FindControl<TextBlock>("DebugBox");
 
                     IPAddress multicastAddress = IPAddress.Parse("224.0.0.1");
                     if (ipAddressBox != null && ipAddressBox.Text != null) multicastAddress = IPAddress.Parse(ipAddressBox.Text);
@@ -138,12 +139,14 @@ namespace MyApp
                     while (_isConnected)
                     {
                         UdpReceiveResult result = await _udpClient.ReceiveAsync();
+                        //_udpClient.Send(Encoding.UTF8.GetBytes("{\"cmd\":\"get_status\"}"), Encoding.UTF8.GetBytes("{\"cmd\":\"get_status\"}").Length, result.RemoteEndPoint);
                         string message = Encoding.UTF8.GetString(result.Buffer);
                         if (message != null)
                         {
                             RootObject? json = DataParser.ParseMulticastDataPacket(message);
                             if (json == null || json.vfos == null)
                             {
+                                DebugBox!.Text = message;
                                 continue;
                             }
                             var id = json.rig?.id?.model + " " + json.rig?.id?.endpoint + " " + json.rig?.id?.process;
@@ -191,29 +194,29 @@ namespace MyApp
                                     modeB = "None";
                                 }
                             }
-                            if (VFOAModeBox.Items.Count > 0 && VFOAModeBox.SelectedItem != null && VFOAModeBox.SelectedItem.ToString() != modeA)
+                            if (VFOAModeBox!.Items.Count > 0 && VFOAModeBox!.SelectedItem != null && VFOAModeBox!.SelectedItem.ToString() != modeA)
                             {
                                 modeA = VFOAModeBox.SelectedItem.ToString();
                                 // set new mode
                                 modeAChanged = true;
                             }
-                            if (VFOAModeBox.Items.Count > 0 && VFOBModeBox.SelectedItem != null && VFOBModeBox.SelectedItem.ToString() != modeB)
+                            if (VFOAModeBox.Items.Count > 0 && VFOBModeBox!.SelectedItem != null && VFOBModeBox.SelectedItem.ToString() != modeB)
                             {
                                 modeB = VFOBModeBox.SelectedItem.ToString();
                                 // set new mode
                                 modeBChanged = true;
                             }
-                            if (json.rig != null && (modeAChanged || modeBChanged || VFOAModeBox.Items.Count == 0))
+                            if (json.rig != null && json.rig.modes != null &&  (modeAChanged || modeBChanged || VFOAModeBox.Items.Count == 0))
                             {
                                 modeAChanged = false;
                                 modeBChanged = false;
                                 foreach(string token in json.rig.modes)
                                 {
                                     VFOAModeBox.Items.Add(token);
-                                    VFOBModeBox.Items.Add(token);
+                                    VFOBModeBox!.Items.Add(token);
                                 }
                                 VFOAModeBox.SetCurrentValue(ComboBox.SelectedItemProperty, modeA);
-                                VFOBModeBox.SetCurrentValue(ComboBox.SelectedItemProperty, modeB);
+                                VFOBModeBox!.SetCurrentValue(ComboBox.SelectedItemProperty, modeB);
                             }
                             /* need to part mode arrqay now
                             if ((json.rig != null && json.rig.modelist != modeList) || modeAChanged || modeBChanged)
