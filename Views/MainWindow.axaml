@@ -2,55 +2,57 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:HamlibGUI"
         x:Class="HamlibGUI.MainWindow"
-        Title="Hamlib GUI 20231027" Width="500" Height="350">
+        Title="Hamlib GUI 202311105" Width="500" Height="350">
 	<TabControl>
-		<TabItem Name="Tab1">
+		<TabItem Name="Tab1" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
 			<TabItem.Header>
 				<TextBlock VerticalAlignment="Center">Rig</TextBlock>
 			</TabItem.Header>
-			<StackPanel Margin="10">
-				<!--Some text for comments-->
-				<StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-					<TextBlock Text="IP Address:" VerticalAlignment="Center" Width="80"/>
-					<TextBox Name="IpAddressBox" Width="100" Height="30" Margin="0,0,10,0" Text="224.0.0.1"/>
-					<TextBlock Text="Port:" VerticalAlignment="Center" Width="35" Margin="10,0,0,0"/>
-					<TextBox Name="PortBox" Width="70" Height="30" Margin="0,0,10,0" Text="4532"/>
-					<Button Name="JoinButton" Content="Join" Width="60" Height="30" Margin="10,10,0,10" Click="OnJoinButtonClick"/>
-					<CheckBox Name="JoinAtStartup" Height="30" Margin="10,10,0,10">
-					<ToolTip.Tip>"Join automatically at startup"</ToolTip.Tip>
-					</CheckBox>
-				</StackPanel>
-				<ComboBox Name="IdBox" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0,-5,0,10" ToolTip.Tip="Select the rig instance to control" />
-				<StackPanel Orientation="Horizontal" Margin="0,0,0,0">
-				</StackPanel>
+			<ScrollViewer HorizontalScrollBarVisibility="Auto">
+				<StackPanel Margin="10">
+					<!--Some text for comments-->
+					<StackPanel Orientation="Horizontal" Margin="-10,0,0,5">
+						<TextBlock Text="IP Address:" VerticalAlignment="Center" Width="80" />
+						<TextBox Name="IpAddressBox" Width="100" Height="30" Margin="0,0,10,0" Text="224.0.0.1"/>
+						<TextBlock Text="Port:" VerticalAlignment="Center" Width="35" Margin="10,0,0,0"/>
+						<TextBox Name="PortBox" Width="70" Height="30" Margin="0,0,10,0" Text="4532"/>
+						<Button Name="JoinButton" Content="Join" Width="60" Height="30" Margin="10,10,0,10" Click="OnJoinButtonClick"/>
+						<CheckBox Name="JoinAtStartup" Height="30" Margin="10,10,0,10">
+						<ToolTip.Tip>"Join automatically at startup"</ToolTip.Tip>
+						</CheckBox>
+					</StackPanel>
+					<ComboBox Name="IdBox" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0,-5,0,10" ToolTip.Tip="Select the rig instance to control" />
+					<StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+					</StackPanel>
 
-				<StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-				</StackPanel>
+					<StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+					</StackPanel>
 				
-				<StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-					<TextBlock Text="VFOA Freq:" VerticalAlignment="Center" Width="80"/>
-					<TextBox Name="VFOAFreqBox" Width="140" Height="30" IsReadOnly="False" ToolTip.Tip="Green=Rx, Yellow=Tx, Red=Active TX, Grey=Not in use"/>
-					<TextBlock Text="Mode:" VerticalAlignment="Center" Width="45" Margin="10,0,0,0"/>
-					<ComboBox Name="VFOAModeBox" Width="100" Height="30">
-					</ComboBox>
-				</StackPanel>
+					<StackPanel Orientation="Horizontal" Margin="-10,0,0,5">
+						<TextBlock Text="VFOA Freq:" VerticalAlignment="Center" Width="80"/>
+						<TextBox Name="VFOAFreqBox" Width="120" Height="30" IsReadOnly="False" ToolTip.Tip="Green=Rx, Yellow=Tx, Red=Active TX, Grey=Not in use"/>
+						<TextBlock Text="Mode:" VerticalAlignment="Center" Width="45" Margin="10,0,0,0" />
+						<ComboBox Name="VFOAModeBox" Width="100" Height="30">
+						</ComboBox>
+					</StackPanel>
 
-				<StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-					<TextBlock Text="VFOB Freq:" VerticalAlignment="Center" Width="80" />
-					<TextBox Name="VFOBFreqBox" Width="140" Height="30" IsReadOnly="False" ToolTip.Tip="Green=Rx, Yellow=Tx, Red=Active TX, Grey=Not in use"/>
-					<TextBlock Text="Mode:" VerticalAlignment="Center" Width="45" Margin="10,0,0,0"/>
-					<ComboBox Name="VFOBModeBox" Width="100" Height="30">
-					</ComboBox>
-				</StackPanel>
+					<StackPanel Orientation="Horizontal" Margin="-10,0,0,5">
+						<TextBlock Text="VFOB Freq:" VerticalAlignment="Center" Width="80" />
+						<TextBox Name="VFOBFreqBox" Width="120" Height="30" IsReadOnly="False" ToolTip.Tip="Green=Rx, Yellow=Tx, Red=Active TX, Grey=Not in use"/>
+						<TextBlock Text="Mode:" VerticalAlignment="Center" Width="45" Margin="10,0,0,0"/>
+						<ComboBox Name="VFOBModeBox" Width="100" Height="30">
+						</ComboBox>
+					</StackPanel>
 
-			</StackPanel>
+				</StackPanel>
+			</ScrollViewer>
 		</TabItem>
 		<TabItem Name="Tab2">
 			<TabItem.Header>
 				<TextBlock VerticalAlignment="Center">JSON
 			</TextBlock>
 			</TabItem.Header>
-			<TextBox Name="MessageTextBox" Margin="0,5,0,0"/>
+			<TextBox Name="MessageTextBox" Margin="0,5,0,0" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
 		</TabItem>
 		<TabItem Name="Spectrum">
 			<TabItem.Header>
@@ -61,9 +63,11 @@
 			<TabItem.Header>
 				<TextBlock VerticalAlignment="Center">Debug</TextBlock>
 			</TabItem.Header>
-			<StackPanel Orientation="Horizontal" Margin="0,0,0,0">
-					<TextBlock Name="DebugBox" Text="Debug Level:" VerticalAlignment="Top" />
-		    </StackPanel>
+			<ScrollViewer HorizontalScrollBarVisibility="Auto">
+				<StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+					<TextBlock Name="DebugBox" Text="" VerticalAlignment="Top" ScrollViewer.HorizontalScrollBarVisibility="Visible"/>
+				</StackPanel>
+			</ScrollViewer>
 		</TabItem>
 	</TabControl>
 </Window>

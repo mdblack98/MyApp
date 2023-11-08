@@ -28,6 +28,7 @@ namespace HamlibGUI
         public string? model { get; set; }
         public string? endpoint { get; set; }
         public string? process { get; set; }
+        public string? deviceId { get; set; }
     }
     public class Rig
     {

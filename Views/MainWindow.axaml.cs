@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
@@ -23,6 +24,10 @@ namespace HamlibGUI
         private bool _isConnected;
         private Button? _joinButton;
         private readonly IBrush _defaultButtonColor = new SolidColorBrush(Colors.Gray);
+        private bool isSelectionEventEnabledVFOAFreqBox = false;
+        private bool isSelectionEventEnabledVFOBFreqBox = false;
+        private bool isSelectionEventEnabledVFOAModeBox = false;
+        private bool isSelectionEventEnabledVFOBModeBox = false;
         public MainWindow()
         {
 
@@ -43,6 +48,125 @@ namespace HamlibGUI
 
             PlotModel.Series.Add(cosineSeries);
             */
+
+            // Handle our events
+            var VFOAFreqBox = this.FindControl<TextBox>("VFOAFreqBox");
+            var VFOBFreqBox = this.FindControl<TextBox>("VFOBFreqBox");
+            var VFOAModeBox = this.FindControl<ComboBox>("VFOAModeBox");
+            var VFOBModeBox = this.FindControl<ComboBox>("VFOBModeBox");
+            var DebugBox = this.FindControl<TextBlock>("DebugBox");
+            var idBox = this.FindControl<ComboBox>("IdBox");
+            var joinButton = this.FindControl<CheckBox>("JoinAtStartup");
+
+
+            if (VFOAFreqBox != null)
+            {
+                // Handle Enter key press
+                VFOAFreqBox.KeyDown += (sender, e) =>
+                {
+                    if (e.Key == Key.Enter)
+                    {
+                        // Enter key was pressed
+                        // Your code to handle Enter key press here
+                        var freq = VFOAFreqBox.Text;
+                        var id = idBox!.SelectedItem!.ToString();
+                        if (id != null && freq != null)
+                            RigSetFreq(id, "VFOA", Double.Parse(freq));
+                        //var buf = (Encoding.UTF8.GetBytes("{\"cmd\":\"set_vfoa\",\"freq\":" + VFOAFreqBox.Text + "}"), Encoding.UTF8.GetBytes("{\"cmd\":\"set_vfoa\",\"freq\":" + VFOAFreqBox.Text + "}").Length);
+                        //_udpClient!.Client.SendTo(buf, remoteEP);
+                    }
+                
+                };
+
+                // Handle Escape key press
+                VFOAFreqBox.KeyDown += (sender, e) =>
+                {
+                    if (e.Key == Key.Escape)
+                    {
+                        // Escape key was pressed
+                        // Your code to handle Escape key press here
+                    }
+                };
+
+                // Handle focus loss
+                VFOAFreqBox.LostFocus += (sender, e) =>
+                {
+                    DebugBox!.Text += "VFOAFreqBox Lost Focus\n";   
+                    // VFOAFreqBox lost focus
+                    // Your code to handle focus loss here
+                };
+            }
+            if (VFOBFreqBox != null)
+            {
+                // Handle Enter key press
+                VFOBFreqBox.KeyDown += (sender, e) =>
+                {
+                    if (e.Key == Key.Enter)
+                    {
+                        var buf = "{\"cmd\":\"set_vfob\",\"freq\":" + VFOBFreqBox.Text + "}";   
+                        // Enter key was pressed
+                        // Your code to handle Enter key press here
+                    }
+                };
+
+                // Handle Escape key press
+                VFOBFreqBox.KeyDown += (sender, e) =>
+                {
+                    if (e.Key == Key.Escape)
+                    {
+                        // Escape key was pressed
+                        // Your code to handle Escape key press here
+                    }
+                };
+
+                // Handle focus loss
+                VFOBFreqBox.LostFocus += (sender, e) =>
+                {
+                    DebugBox!.Text += "VFOBFreqBox Lost Focus\n";
+                    // VFOAFreqBox lost focus
+                    // Your code to handle focus loss here
+                };
+            }
+            if (VFOAModeBox != null)
+            {
+                VFOAModeBox.SelectionChanged += (sender, e) =>
+                {
+                    if (isSelectionEventEnabledVFOAModeBox)
+                    { 
+                        var selectedMode = VFOAModeBox.SelectedItem?.ToString();
+                        DebugBox!.Text += DateTime.Now.ToString("HH:mm:ss") + " " + "VFOAMode=" + selectedMode + "\n";
+                        DebugBox!.Text += sender!.ToString() + "\n";
+                    }
+                };
+            }
+            if (VFOBModeBox != null)
+            {
+                VFOBModeBox.SelectionChanged += (sender, e) =>
+                {
+                    if (isSelectionEventEnabledVFOBModeBox)
+                    {
+                        var selectedMode = VFOBModeBox.SelectedItem?.ToString();
+                        DebugBox!.Text += DateTime.Now.ToString("HH:mm:ss") + " " + "VFOBMode=" + selectedMode + "\n";
+                    }
+                };
+            }
+            joinButton.
+        }
+
+        public class SetFreq
+        {
+            public string? id { get; set;}
+            public string? cmd { get; set; }
+            public string? vfo { get; set; }
+            public double freq { get; set; }    
+        }
+        private void RigSetFreq(string id, string vfo, double freq)
+        {
+            var idBox = this.FindControl<ComboBox>("IdBox");
+            var setFreq = new SetFreq { id = id, cmd = "set_freq", vfo = vfo, freq = freq };
+            string jsonString = JsonSerializer.Serialize(setFreq);
+            var DebugBox = this.FindControl<TextBlock>("DebugBox");
+            DebugBox!.Text += DateTime.Now.ToString("HH:mm:ss") + " " + jsonString + "\n";
         }
 
         /*
@@ -68,8 +192,39 @@ namespace HamlibGUI
                 return prettifiedJson;
             }
         }
+        private void ClearItemFromIdBox(string itemToRemove)
+        {
+            var idBox = this.FindControl<ComboBox>("IdBox");
+
+            if (idBox != null && idBox.Items != null)
+            {
+                for (int i = 0; i < idBox.Items.Count; i++)
+                {
+                    if (idBox.Items[i]!.ToString() == itemToRemove)
+                    {
+                        idBox.Items.RemoveAt(i);
+                        break; // Exit the loop after removing the item
+                    }
+                }
+            }
+        }
+
+        private void JoinMulticast()
+        {
+
+        }
         private async void OnJoinButtonClick(object sender, RoutedEventArgs e)
         {
+            var ipAddressBox = this.FindControl<TextBox>("IpAddressBox");
+            var idBox = this.FindControl<ComboBox>("IdBox");
+            var portBox = this.FindControl<TextBox>("PortBox");
+            var messageTextBox = this.FindControl<TextBox>("MessageTextBox");
+            var VFOAFreqBox = this.FindControl<TextBox>("VFOAFreqBox");
+            var VFOBFreqBox = this.FindControl<TextBox>("VFOBFreqBox");
+            var VFOAModeBox = this.FindControl<ComboBox>("VFOAModeBox");
+            var VFOBModeBox = this.FindControl<ComboBox>("VFOBModeBox");
+            var DebugBox = this.FindControl<TextBlock>("DebugBox");
+
             if (_isConnected)
             {
                 _udpClient?.Close();
@@ -79,21 +234,18 @@ namespace HamlibGUI
                 {
                     _joinButton.Background = _defaultButtonColor;
                     _joinButton.SetValue(Button.ContentProperty, "Join");
+                    idBox!.Items.Clear();
+                    VFOAFreqBox!.Clear();
+                    VFOAModeBox!.Items.Clear();
+                    VFOBFreqBox!.Clear();
+                    VFOBModeBox!.Items.Clear();
+                    DebugBox!.Text = "";
                 }
             }
             else
             {
                 try
                 {
-                    var ipAddressBox = this.FindControl<TextBox>("IpAddressBox");
-                    var idBox = this.FindControl<ComboBox>("IdBox");
-                    var portBox = this.FindControl<TextBox>("PortBox");
-                    var messageTextBox = this.FindControl<TextBox>("MessageTextBox");
-                    var VFOAFreqBox = this.FindControl<TextBox>("VFOAFreqBox");
-                    var VFOBFreqBox = this.FindControl<TextBox>("VFOBFreqBox");
-                    var VFOAModeBox = this.FindControl<ComboBox>("VFOAModeBox");
-                    var VFOBModeBox = this.FindControl<ComboBox>("VFOBModeBox");
-                    var DebugBox = this.FindControl<TextBlock>("DebugBox");
 
                     IPAddress multicastAddress = IPAddress.Parse("224.0.0.1");
                     if (ipAddressBox != null && ipAddressBox.Text != null) multicastAddress = IPAddress.Parse(ipAddressBox.Text);
@@ -101,9 +253,11 @@ namespace HamlibGUI
                     int port = 4532;
                     if (portBox != null && portBox.Text != null) port = int.Parse(portBox.Text);
 
-                    _udpClient = new UdpClient(port);
+                    //_udpClient = new UdpClient(port);
+                    _udpClient = new UdpClient();
                     _udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-                    //_udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, port));
+                    _udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, port));
+                    //_udpClient.Client.Connect(multicastAddress, port);
                     NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
                     foreach (NetworkInterface adapter in nics)
                     {
@@ -150,158 +304,167 @@ namespace HamlibGUI
                                 continue;
                             }
                             var id = json.rig?.id?.model + " " + json.rig?.id?.endpoint + " " + json.rig?.id?.process;
-                            if (!idBox!.Items.Contains(id)) idBox.Items.Add(id);
-                            if (idBox.Items.Count == 1) idBox.SelectedItem = idBox.Items[0];
-                            if (idBox.SelectedItem != null && idBox.SelectedItem.ToString() != id)
+                            if (json.rig?.id?.deviceId != null)
                             {
-                                if (!(idBox.SelectedItem.ToString() == id))  // if not our selected rig we ignore
+                                id += " " + json.rig?.id?.deviceId;
+                                if (!idBox!.Items.Contains(id)) idBox.Items.Add(id);
+                                if (idBox.Items.Count == 1) idBox.SelectedItem = idBox.Items[0];
+                                if (idBox.SelectedItem != null && idBox.SelectedItem.ToString() != id)
                                 {
-                                    continue;
+                                    if (!(idBox.SelectedItem.ToString() == id))  // if not our selected rig we ignore
+                                    {
+                                        continue;
+                                    }
                                 }
-                            }
-                            messageTextBox!.Text = PrettifyJson(message);
-                            if (json.vfos[0].freq != frequencyA)
-                            {
-                                frequencyA = json.vfos[0].freq;
-                                VFOAFreqBox!.Text = json.vfos[0].freq.ToString();
-                            }
-                            if (json.vfos[1].freq != frequencyB)
-                            {
-                                frequencyB = json.vfos[1].freq;
-                                VFOBFreqBox!.Text = json.vfos[1].freq.ToString();
-                            }
-                            if (json.vfos[0] != null)
-                            {
-                                if (json.vfos[0].mode != modeA)
+                                messageTextBox!.Text = PrettifyJson(message);
+                                if (json.vfos[0].freq != frequencyA)
+                                {
+                                    frequencyA = json.vfos[0].freq;
+                                    isSelectionEventEnabledVFOAFreqBox = false;
+                                    VFOAFreqBox!.Text = json.vfos[0].freq.ToString();
+                                    isSelectionEventEnabledVFOAFreqBox = true;
+                                }
+                                if (json.vfos[1].freq != frequencyB)
+                                {
+                                    frequencyB = json.vfos[1].freq;
+                                    isSelectionEventEnabledVFOBFreqBox = false;
+                                    VFOBFreqBox!.Text = json.vfos[1].freq.ToString();
+                                    isSelectionEventEnabledVFOBFreqBox = true;
+                                }
+                                if (json.vfos[0] != null && json.vfos[0].mode != modeA)
                                 {
                                     if (json.vfos[0].mode != null && json.vfos.Count >= 1)
                                     {
 
                                         modeA = json.vfos[0].mode ?? "";
+                                        isSelectionEventEnabledVFOAModeBox = false;
                                         VFOAModeBox!.SelectedItem = modeA;
+                                        isSelectionEventEnabledVFOAModeBox = true;
                                     }
                                 }
-                            }
-                            if (json.vfos[1].mode != modeB)
-                            {
-                                if (json.vfos != null && json.vfos.Count >= 2 && json.vfos[1] != null && json.vfos[1].mode != null)
+                                if (json.vfos[1] != null && json.vfos[1].mode != modeB)
                                 {
-                                    modeB = json.vfos[1].mode ?? "";
-                                    VFOBModeBox!.SelectedItem = modeB;
-                                }
-                                else
-                                {
-                                    modeB = "None";
-                                }
-                            }
-                            if (VFOAModeBox!.Items.Count > 0 && VFOAModeBox!.SelectedItem != null && VFOAModeBox!.SelectedItem.ToString() != modeA)
-                            {
-                                modeA = VFOAModeBox.SelectedItem.ToString();
-                                // set new mode
-                                modeAChanged = true;
-                            }
-                            if (VFOAModeBox.Items.Count > 0 && VFOBModeBox!.SelectedItem != null && VFOBModeBox.SelectedItem.ToString() != modeB)
-                            {
-                                modeB = VFOBModeBox.SelectedItem.ToString();
-                                // set new mode
-                                modeBChanged = true;
-                            }
-                            if (json.rig != null && json.rig.modes != null &&  (modeAChanged || modeBChanged || VFOAModeBox.Items.Count == 0))
-                            {
-                                modeAChanged = false;
-                                modeBChanged = false;
-                                foreach(string token in json.rig.modes)
-                                {
-                                    VFOAModeBox.Items.Add(token);
-                                    VFOBModeBox!.Items.Add(token);
-                                }
-                                VFOAModeBox.SetCurrentValue(ComboBox.SelectedItemProperty, modeA);
-                                VFOBModeBox!.SetCurrentValue(ComboBox.SelectedItemProperty, modeB);
-                            }
-                            /* need to part mode arrqay now
-                            if ((json.rig != null && json.rig.modelist != modeList) || modeAChanged || modeBChanged)
-                            {
-                                modeAChanged = false;
-                                modeBChanged = false;
-                                if (json.rig != null && json.rig.modelist != null) modeList = json.rig.modelist;
-                                if (VFOAModeBox != null && VFOBModeBox != null && modeList != null)
-                                {
-                                    VFOAModeBox.Items.Clear();
-                                    VFOBModeBox.Items.Clear();
-                                    List<string> tokens = modeList.Split(' ').OrderBy(x => x).ToList();
-                                    foreach (string token in tokens)
+                                    if (json.vfos != null && json.vfos.Count >= 2 && json.vfos[1] != null && json.vfos[1].mode != null)
                                     {
-                                        VFOAModeBox.Items.Add(token);
-                                        VFOBModeBox.Items.Add(token);
-                                    }
-                                    VFOAModeBox.SetCurrentValue(ComboBox.SelectedItemProperty, modeA);
-                                    if (modeB != "None")
-                                    {
-                                        VFOBModeBox.IsVisible = true;
-                                        VFOBModeBox.SetCurrentValue(ComboBox.SelectedItemProperty, modeB);
+                                        modeB = json.vfos[1].mode ?? "";
+                                        isSelectionEventEnabledVFOBModeBox = false;
+                                        VFOBModeBox!.SelectedItem = modeB;
+                                        isSelectionEventEnabledVFOBModeBox = true;
                                     }
                                     else
                                     {
-                                        VFOBModeBox.IsVisible = false;
+                                        modeB = "None";
                                     }
                                 }
-                            }
-                            */
-                            var ColorRx = new SolidColorBrush(Colors.Green);
-                            var ColorTx = new SolidColorBrush(Colors.Yellow);
-                            var ColorPTT = new SolidColorBrush(Colors.Red);
-                            var ColorNA = new SolidColorBrush(Colors.Gray);
+                                if (VFOAModeBox!.Items.Count > 0 && VFOAModeBox!.SelectedItem != null && VFOAModeBox!.SelectedItem.ToString() != modeA)
+                                {
+                                    modeA = VFOAModeBox!.SelectedItem!.ToString()!;
+                                    // set new mode
+                                    modeAChanged = true;
+                                }
+                                if (VFOAModeBox.Items.Count > 0 && VFOBModeBox!.SelectedItem != null && VFOBModeBox.SelectedItem.ToString() != modeB)
+                                {
+                                    modeB = VFOBModeBox!.SelectedItem!.ToString()!;
+                                    // set new mode
+                                    modeBChanged = true;
+                                }
+                                if (json.rig != null && json.rig.modes != null && (modeAChanged || modeBChanged || VFOAModeBox.Items.Count == 0))
+                                {
+                                    modeAChanged = false;
+                                    modeBChanged = false;
+                                    foreach (string token in json.rig.modes)
+                                    {
+                                        VFOAModeBox!.Items.Add(token);
+                                        VFOBModeBox!.Items.Add(token);
+                                    }
+                                    VFOAModeBox.SetCurrentValue(ComboBox.SelectedItemProperty, modeA);
+                                    VFOBModeBox!.SetCurrentValue(ComboBox.SelectedItemProperty, modeB);
+                                }
+                                /* need to part mode arrqay now
+                                if ((json.rig != null && json.rig.modelist != modeList) || modeAChanged || modeBChanged)
+                                {
+                                    modeAChanged = false;
+                                    modeBChanged = false;
+                                    if (json.rig != null && json.rig.modelist != null) modeList = json.rig.modelist;
+                                    if (VFOAModeBox != null && VFOBModeBox != null && modeList != null)
+                                    {
+                                        VFOAModeBox.Items.Clear();
+                                        VFOBModeBox.Items.Clear();
+                                        List<string> tokens = modeList.Split(' ').OrderBy(x => x).ToList();
+                                        foreach (string token in tokens)
+                                        {
+                                            VFOAModeBox.Items.Add(token);
+                                            VFOBModeBox.Items.Add(token);
+                                        }
+                                        VFOAModeBox.SetCurrentValue(ComboBox.SelectedItemProperty, modeA);
+                                        if (modeB != "None")
+                                        {
+                                            VFOBModeBox.IsVisible = true;
+                                            VFOBModeBox.SetCurrentValue(ComboBox.SelectedItemProperty, modeB);
+                                        }
+                                        else
+                                        {
+                                            VFOBModeBox.IsVisible = false;
+                                        }
+                                    }
+                                }
+                                */
+                                var ColorRx = new SolidColorBrush(Colors.Green);
+                                var ColorTx = new SolidColorBrush(Colors.Yellow);
+                                var ColorPTT = new SolidColorBrush(Colors.Red);
+                                var ColorNA = new SolidColorBrush(Colors.Gray);
 
-                            if (json.vfos![0].ptt == true)
-                            {
-                                VFOAFreqBox!.Foreground = ColorPTT;
-                            }
-                            else if (json.vfos![1].ptt == true)
-                            {
-                                VFOBFreqBox!.Foreground = ColorPTT;
-                            }
-                            else if (json.vfos != null && json.vfos[0].rx == true && json.vfos[0].tx == true)
-                            {
-                                VFOAFreqBox!.Foreground = ColorRx;
-                                VFOBFreqBox!.Foreground = ColorNA;
-                            }
-                            else if (json.vfos != null && json.vfos[1].rx == true && json.vfos[1].tx == true)
-                            {
-                                VFOAFreqBox!.Foreground = ColorNA;
-                                VFOBFreqBox!.Foreground = ColorRx;
-                            }
-                            else if (json.vfos != null && json.vfos[0].rx == true && json.vfos[1].tx == true)
-                            {
-                                VFOAFreqBox!.Foreground = ColorRx;
-                                VFOBFreqBox!.Foreground = ColorTx;
-                            }
-                            else if (json.vfos != null && json.vfos[0].tx == true && json.vfos[1].rx == true)
-                            {
-                                VFOAFreqBox!.Foreground = ColorTx;
-                                VFOBFreqBox!.Foreground = ColorRx;
-                            }
-                            else if (json.vfos![0].ptt == true)
-                            {
-                                VFOAFreqBox!.Foreground = ColorTx;
-                            }
-                            else if (json.vfos![1].ptt == true)
-                            {
-                                VFOBFreqBox!.Foreground = ColorTx;
-                            }
-                        
-                            else
-                            {
-                                VFOAFreqBox!.Foreground = ColorNA;
-                                VFOBFreqBox!.Foreground = ColorNA;
+                                if (json.vfos![0].ptt == true)
+                                {
+                                    VFOAFreqBox!.Foreground = ColorPTT;
+                                }
+                                else if (json.vfos![1].ptt == true)
+                                {
+                                    VFOBFreqBox!.Foreground = ColorPTT;
+                                }
+                                else if (json.vfos != null && json.vfos[0].rx == true && json.vfos[0].tx == true)
+                                {
+                                    VFOAFreqBox!.Foreground = ColorRx;
+                                    VFOBFreqBox!.Foreground = ColorNA;
+                                }
+                                else if (json.vfos != null && json.vfos[1].rx == true && json.vfos[1].tx == true)
+                                {
+                                    VFOAFreqBox!.Foreground = ColorNA;
+                                    VFOBFreqBox!.Foreground = ColorRx;
+                                }
+                                else if (json.vfos != null && json.vfos[0].rx == true && json.vfos[1].tx == true)
+                                {
+                                    VFOAFreqBox!.Foreground = ColorRx;
+                                    VFOBFreqBox!.Foreground = ColorTx;
+                                }
+                                else if (json.vfos != null && json.vfos[0].tx == true && json.vfos[1].rx == true)
+                                {
+                                    VFOAFreqBox!.Foreground = ColorTx;
+                                    VFOBFreqBox!.Foreground = ColorRx;
+                                }
+                                else if (json.vfos![0].ptt == true)
+                                {
+                                    VFOAFreqBox!.Foreground = ColorTx;
+                                }
+                                else if (json.vfos![1].ptt == true)
+                                {
+                                    VFOBFreqBox!.Foreground = ColorTx;
+                                }
+
+                                else
+                                {
+                                    VFOAFreqBox!.Foreground = ColorNA;
+                                    VFOBFreqBox!.Foreground = ColorNA;
+                                }
                             }
                         }
                     }
                 }
-                
+
                 catch (Exception ex)
                 {
-                    var messageTextBox = this.FindControl<TextBox>("MessageTextBox");
-                    if (messageTextBox != null) messageTextBox.Text = "Error: " + ex.Message;
+                    var messageTextBox2 = this.FindControl<TextBox>("MessageTextBox");
+                    if (messageTextBox2 != null) messageTextBox2.Text = "Error: " + ex.Message;
                     _udpClient?.Close();
                     _udpClient = null;
                     _isConnected = false;

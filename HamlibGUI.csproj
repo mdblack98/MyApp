@@ -7,6 +7,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <Platforms>AnyCPU;x86</Platforms>
+    <Title>HamlibGUI</Title>
+    <ApplicationIcon>Ham1631629.ico</ApplicationIcon>
+    <PackageIcon>Ham1631629.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,11 +27,23 @@
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.2" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.2" />
     <PackageReference Include="OxyPlot.Core" Version="2.1.2" />
+    <PackageReference Include="System.Text.Json" Version="7.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Resources\Fonts\*.*" />
     <Resource Include="Resources\Fonts\*.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Ham1631629.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Downloads\Ham1631629.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
