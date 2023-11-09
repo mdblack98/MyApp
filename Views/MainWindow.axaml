@@ -21,8 +21,10 @@
 						<ToolTip.Tip>"Join automatically at startup"</ToolTip.Tip>
 						</CheckBox>
 					</StackPanel>
-					<ComboBox Name="IdBox" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0,-5,0,10" ToolTip.Tip="Select the rig instance to control" />
 					<StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+						<Button Name="PTT" Content="PTT" VerticalAlignment="Center" HorizontalAlignment="Right"  Width="60" Height="30" Margin="0,0,5,0" Click="OnPTTClick" />
+						<Button Name="Split" Content="Split" VerticalAlignment="Center" HorizontalAlignment="Right"  Width="60" Height="30" Margin="0,0,5,0" Click="OnSplitClick" />
+						<ComboBox Name="IdBox" VerticalAlignment="Center" HorizontalAlignment="Center"  Margin="0,10,0,10" ToolTip.Tip="Select the rig instance to control" />
 					</StackPanel>
 
 					<StackPanel Orientation="Vertical" HorizontalAlignment="Center">
@@ -36,7 +38,7 @@
 						</ComboBox>
 					</StackPanel>
 
-					<StackPanel Orientation="Horizontal" Margin="-10,0,0,5">
+					<StackPanel Orientation="Horizontal" Margin="-10,0,0,0">
 						<TextBlock Text="VFOB Freq:" VerticalAlignment="Center" Width="80" />
 						<TextBox Name="VFOBFreqBox" Width="120" Height="30" IsReadOnly="False" ToolTip.Tip="Green=Rx, Yellow=Tx, Red=Active TX, Grey=Not in use"/>
 						<TextBlock Text="Mode:" VerticalAlignment="Center" Width="45" Margin="10,0,0,0"/>
@@ -47,7 +49,15 @@
 				</StackPanel>
 			</ScrollViewer>
 		</TabItem>
-		<TabItem Name="Tab2">
+		<TabItem Name="Config">
+			<TabItem.Header>
+				<TextBlock VerticalAlignment="Center">
+					Config
+				</TextBlock>
+			</TabItem.Header>
+			<TextBox Name="ConfigTextBox" Margin="0,5,0,0" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+		</TabItem>
+		<TabItem Name="JSON">
 			<TabItem.Header>
 				<TextBlock VerticalAlignment="Center">JSON
 			</TextBlock>

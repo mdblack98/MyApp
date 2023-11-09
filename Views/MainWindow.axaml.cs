@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -14,6 +15,8 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Rendering;
+using Avalonia.Styling;
+using Newtonsoft.Json;
 //using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace HamlibGUI
@@ -28,6 +31,12 @@ namespace HamlibGUI
         private bool isSelectionEventEnabledVFOBFreqBox = false;
         private bool isSelectionEventEnabledVFOAModeBox = false;
         private bool isSelectionEventEnabledVFOBModeBox = false;
+        private const string ConfigFileName = "HamlibGUI.json";
+//        private Color ColorRx = Colors.Green;
+//       private Color ColorTx = Colors.Yellow;
+//        private Color ColorPTT = Colors.Red;
+//        private Color ColorNA = Colors.Gray;
+
         public MainWindow()
         {
 
@@ -35,6 +44,9 @@ namespace HamlibGUI
 #if DEBUG
             this.AttachDevTools();
 #endif
+            this.Opened += OnWindowOpened;
+            this.Closing += OnWindowClosing;
+
             _joinButton = this.FindControl<Button>("JoinButton");
             if (_joinButton != null && _joinButton.Background != null) _defaultButtonColor = _joinButton.Background;
             /*
@@ -70,8 +82,8 @@ namespace HamlibGUI
                         // Your code to handle Enter key press here
                         var freq = VFOAFreqBox.Text;
                         var id = idBox!.SelectedItem!.ToString();
-                        if (id != null && freq != null)
-                            RigSetFreq(id, "VFOA", Double.Parse(freq));
+                        //if (id != null && freq != null)
+                            //RigSetFreq(id, "VFOA", Double.Parse(freq));
                         //var buf = (Encoding.UTF8.GetBytes("{\"cmd\":\"set_vfoa\",\"freq\":" + VFOAFreqBox.Text + "}"), Encoding.UTF8.GetBytes("{\"cmd\":\"set_vfoa\",\"freq\":" + VFOAFreqBox.Text + "}").Length);
                         //_udpClient!.Client.SendTo(buf, remoteEP);
                     }
@@ -150,9 +162,56 @@ namespace HamlibGUI
                     }
                 };
             }
-            joinButton.
         }
 
+        private void OnWindowOpened(object sender, EventArgs e)
+        {
+            var joinButton = this.FindControl<CheckBox>("JoinAtStartup");
+
+            // Restore the window size and position
+            if (File.Exists(ConfigFileName))
+            {
+                var settings = JsonConvert.DeserializeObject<WindowSettings>(File.ReadAllText(ConfigFileName));
+                if (settings != null)
+                {
+                    this.Width = settings.Width;
+                    this.Height = settings.Height;
+                    this.Position = new PixelPoint(settings.Left, settings.Top);
+                    joinButton!.IsChecked = settings.JoinAtStartup;
+                }
+                if (joinButton == null) return;
+                if ((bool)joinButton.IsChecked!)
+                {
+                    JoinMulticast();
+                }
+            }
+        }
+
+        public class WindowSettings
+        {
+            public int Width { get; set; }
+            public int Height { get; set; }
+            public int Left { get; set; }
+            public int Top { get; set; }
+            public bool JoinAtStartup { get; set; }
+        }
+        private void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            var joinButton = this.FindControl<CheckBox>("JoinAtStartup");
+
+            // Save the window size and position
+            var settings = new WindowSettings
+            {
+                Width = (int)this.Width,
+                Height = (int)this.Height,
+                Left = this.Position.X,
+                Top = this.Position.Y,
+                JoinAtStartup = (bool)joinButton!.IsChecked!
+            };
+
+            File.WriteAllText(ConfigFileName, JsonConvert.SerializeObject(settings));
+        }
+    
         public class SetFreq
         {
             public string? id { get; set;}
@@ -160,11 +219,12 @@ namespace HamlibGUI
             public string? vfo { get; set; }
             public double freq { get; set; }    
         }
+
         private void RigSetFreq(string id, string vfo, double freq)
         {
             var idBox = this.FindControl<ComboBox>("IdBox");
             var setFreq = new SetFreq { id = id, cmd = "set_freq", vfo = vfo, freq = freq };
-            string jsonString = JsonSerializer.Serialize(setFreq);
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(setFreq);
             var DebugBox = this.FindControl<TextBlock>("DebugBox");
             DebugBox!.Text += DateTime.Now.ToString("HH:mm:ss") + " " + jsonString + "\n";
         }
@@ -208,12 +268,7 @@ namespace HamlibGUI
                 }
             }
         }
-
-        private void JoinMulticast()
-        {
-
-        }
-        private async void OnJoinButtonClick(object sender, RoutedEventArgs e)
+        private async void JoinMulticast()
         {
             var ipAddressBox = this.FindControl<TextBox>("IpAddressBox");
             var idBox = this.FindControl<ComboBox>("IdBox");
@@ -224,6 +279,8 @@ namespace HamlibGUI
             var VFOAModeBox = this.FindControl<ComboBox>("VFOAModeBox");
             var VFOBModeBox = this.FindControl<ComboBox>("VFOBModeBox");
             var DebugBox = this.FindControl<TextBlock>("DebugBox");
+            var PTTButton = this.FindControl<Button>("PTT");
+            var TabSpectrum = this.FindControl<TabItem>("Spectrum");
 
             if (_isConnected)
             {
@@ -297,6 +354,8 @@ namespace HamlibGUI
                         string message = Encoding.UTF8.GetString(result.Buffer);
                         if (message != null)
                         {
+                            if (message.Contains("spectrum")) TabSpectrum!.IsVisible = true;
+                            else TabSpectrum!.IsVisible = false;
                             RootObject? json = DataParser.ParseMulticastDataPacket(message);
                             if (json == null || json.vfos == null)
                             {
@@ -413,14 +472,18 @@ namespace HamlibGUI
                                 var ColorTx = new SolidColorBrush(Colors.Yellow);
                                 var ColorPTT = new SolidColorBrush(Colors.Red);
                                 var ColorNA = new SolidColorBrush(Colors.Gray);
+                                var ColorWhite = new SolidColorBrush(Colors.White);
 
+                                PTTButton!.Foreground = ColorWhite;
                                 if (json.vfos![0].ptt == true)
                                 {
                                     VFOAFreqBox!.Foreground = ColorPTT;
+                                    PTTButton!.Foreground = ColorPTT;
                                 }
                                 else if (json.vfos![1].ptt == true)
                                 {
                                     VFOBFreqBox!.Foreground = ColorPTT;
+                                    PTTButton!.Foreground = ColorPTT;
                                 }
                                 else if (json.vfos != null && json.vfos[0].rx == true && json.vfos[0].tx == true)
                                 {
@@ -445,10 +508,12 @@ namespace HamlibGUI
                                 else if (json.vfos![0].ptt == true)
                                 {
                                     VFOAFreqBox!.Foreground = ColorTx;
+                                    PTTButton!.Foreground = ColorTx;
                                 }
                                 else if (json.vfos![1].ptt == true)
                                 {
                                     VFOBFreqBox!.Foreground = ColorTx;
+                                    PTTButton!.Foreground = ColorTx;
                                 }
 
                                 else
@@ -475,6 +540,20 @@ namespace HamlibGUI
                     }
                 }
             }
+
         }
+        private void OnJoinButtonClick(object sender, RoutedEventArgs e)
+        {
+            JoinMulticast();
+        }
+        private void OnPTTClick(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void OnSplitClick(object sender, RoutedEventArgs e)
+        {
+
+        }
+
     }
 }
