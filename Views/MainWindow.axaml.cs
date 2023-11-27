@@ -212,6 +212,14 @@ namespace HamlibGUI
             File.WriteAllText(ConfigFileName, JsonConvert.SerializeObject(settings));
         }
     
+        public class Id
+        {
+            public string ?id { get; set; }
+            public DateTime time { get; set; }
+        }
+
+        List<Id> ids = new List<Id>();
+
         public class SetFreq
         {
             public string? id { get; set;}
@@ -265,6 +273,34 @@ namespace HamlibGUI
                         idBox.Items.RemoveAt(i);
                         break; // Exit the loop after removing the item
                     }
+                }
+            }
+        }
+
+        void IdCheck(string id)
+        {
+            var idBox = this.FindControl<ComboBox>("IdBox");
+            if (!idBox!.Items.Contains(id)) idBox.Items.Add(id);
+            bool foundIt = false;
+            foreach (Id item in ids)
+            {
+                if (item.id == id)
+                {
+                    foundIt = true;
+                    item.time = DateTime.Now;
+                    break;
+                }
+            }
+            if (!foundIt) 
+                ids.Add(new Id { id = id, time = DateTime.Now });
+            var now = DateTime.Now;
+            foreach (Id item in ids)
+            { 
+                if (now.Subtract(item.time).TotalSeconds > 5)
+                {
+                    ClearItemFromIdBox(item.id);
+                    ids.Remove(item);
+                    break;
                 }
             }
         }
@@ -366,9 +402,9 @@ namespace HamlibGUI
                             if (json.rig?.id?.deviceId != null)
                             {
                                 id += " " + json.rig?.id?.deviceId;
-                                if (!idBox!.Items.Contains(id)) idBox.Items.Add(id);
-                                if (idBox.Items.Count == 1) idBox.SelectedItem = idBox.Items[0];
-                                if (idBox.SelectedItem != null && idBox.SelectedItem.ToString() != id)
+                                IdCheck(id);
+                                if (idBox!.Items.Count == 1) idBox.SelectedItem = idBox.Items[0];
+                                if (idBox!.SelectedItem != null && idBox.SelectedItem.ToString() != id)
                                 {
                                     if (!(idBox.SelectedItem.ToString() == id))  // if not our selected rig we ignore
                                     {
