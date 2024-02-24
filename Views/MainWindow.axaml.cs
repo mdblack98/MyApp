@@ -32,6 +32,7 @@ namespace HamlibGUI
         private bool isSelectionEventEnabledVFOAModeBox = false;
         private bool isSelectionEventEnabledVFOBModeBox = false;
         private const string ConfigFileName = "HamlibGUI.json";
+        private string lastId;
 //        private Color ColorRx = Colors.Green;
 //       private Color ColorTx = Colors.Yellow;
 //        private Color ColorPTT = Colors.Red;
@@ -317,6 +318,7 @@ namespace HamlibGUI
             var DebugBox = this.FindControl<TextBlock>("DebugBox");
             var PTTButton = this.FindControl<Button>("PTT");
             var TabSpectrum = this.FindControl<TabItem>("Spectrum");
+            var SplitButton = this.FindControl<Button>("Split");
 
             if (_isConnected)
             {
@@ -411,6 +413,12 @@ namespace HamlibGUI
                                         continue;
                                     }
                                 }
+                                if (id != lastId)
+                                {
+                                    lastId = id;
+                                    VFOAModeBox!.Clear();
+                                    VFOBModeBox!.Clear();
+                                }
                                 messageTextBox!.Text = PrettifyJson(message);
                                 if (json.vfos[0].freq != frequencyA)
                                 {
@@ -426,7 +434,11 @@ namespace HamlibGUI
                                     VFOBFreqBox!.Text = json.vfos[1].freq.ToString();
                                     isSelectionEventEnabledVFOBFreqBox = true;
                                 }
-                                if (json.vfos[0] != null && json.vfos[0].mode != modeA)
+                                if (VFOAModeBox!.SelectedItem ==  null)
+                                {
+
+                                }
+                                if ((json.vfos[0] != null && json.vfos[0].mode != modeA) || VFOAModeBox!.SelectedItem == null)
                                 {
                                     if (json.vfos[0].mode != null && json.vfos.Count >= 1)
                                     {
@@ -437,7 +449,7 @@ namespace HamlibGUI
                                         isSelectionEventEnabledVFOAModeBox = true;
                                     }
                                 }
-                                if (json.vfos[1] != null && json.vfos[1].mode != modeB)
+                                if ((json.vfos[1] != null && json.vfos[1].mode != modeB) || VFOBModeBox!.SelectedItem == null)
                                 {
                                     if (json.vfos != null && json.vfos.Count >= 2 && json.vfos[1] != null && json.vfos[1].mode != null)
                                     {
@@ -475,7 +487,7 @@ namespace HamlibGUI
                                     VFOAModeBox.SetCurrentValue(ComboBox.SelectedItemProperty, modeA);
                                     VFOBModeBox!.SetCurrentValue(ComboBox.SelectedItemProperty, modeB);
                                 }
-                                /* need to part mode arrqay now
+                                /* need to part mode array now
                                 if ((json.rig != null && json.rig.modelist != modeList) || modeAChanged || modeBChanged)
                                 {
                                     modeAChanged = false;
@@ -556,6 +568,15 @@ namespace HamlibGUI
                                 {
                                     VFOAFreqBox!.Foreground = ColorNA;
                                     VFOBFreqBox!.Foreground = ColorNA;
+                                }
+
+                                if (json.rig!.split)
+                                {
+                                    SplitButton!.Foreground = ColorRx;
+                                }
+                                else
+                                {
+                                    SplitButton!.Foreground = ColorNA;
                                 }
                             }
                         }

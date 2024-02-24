@@ -2,7 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:HamlibGUI"
         x:Class="HamlibGUI.MainWindow"
-        Title="Hamlib GUI 202311105" Width="500" Height="350">
+        Title="Hamlib GUI 20240205" Width="500" Height="350">
 	<TabControl>
 		<TabItem Name="Tab1" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
 			<TabItem.Header>
