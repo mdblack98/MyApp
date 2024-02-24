@@ -8,3 +8,7 @@ Requires .Net 7.0 as of 2023-10-28
 	
 You may need Visual C++ 2015 runtime
 https://www.microsoft.com/en-us/download/details.aspx?id=48145
+
+For Linux:
+sudo apt-get update && sudo apt-get install -y dotnet-sdk-7.0
+dotnet build
